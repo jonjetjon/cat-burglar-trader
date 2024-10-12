@@ -16,7 +16,6 @@ import { ITraderConfig } from "@spt/models/spt/config/ITraderConfig";
 import { IRagfairConfig } from "@spt/models/spt/config/IRagfairConfig";
 import { ItemHelper } from "@spt/helpers/ItemHelper";
 import { DynamicRouterModService } from "@spt/services/mod/dynamicRouter/DynamicRouterModService";
-import { RandomUtil } from "@spt/utils/RandomUtil";
 import { JsonUtil } from "@spt/utils/JsonUtil";
 import { BaseClasses} from "@spt/models/enums/BaseClasses";
 import * as fs from "node:fs";
@@ -102,7 +101,6 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         {
             ragfairConfig.traders[baseJson._id] = false;
         }
-
         dynamicRouterModService.registerDynamicRouter(
             "CatBurglarRefreshStock",
             [
@@ -144,16 +142,9 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         this.traderHelper.addTraderToDb(baseJson, tables, jsonUtil);
         const start = performance.now();
 
-        //Detect Realism (to ignore randomized settings)
+        //Detect Realism
         const realismCheck = preSptModLoader.getImportedModsNames().includes("SPT-Realism");
-        if (CatBurglar.config.randomizeBuyRestriction || CatBurglar.config.randomizeStockAvailable)
-        {
-            this.setRealismDetection(realismCheck);
-        }
-        else
-        {
-            this.setRealismDetection(realismCheck);
-        }
+        this.setRealismDetection(realismCheck);
 
         //get a list of all key ids in the game
         const listOfKeys = this.getKeyIds();
@@ -234,52 +225,6 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
             this.logger.log(`[${this.mod}] SPT-Realism detected, disabling randomizeBuyRestriction and/or randomizeStockAvailable:`, "yellow");
         }
     }    
-    private randomizeBuyRestriction(assortItemTable)
-    {
-        const randomUtil: RandomUtil = container.resolve<RandomUtil>("RandomUtil");
-        // Randomize Assort Availability via config bool for server start
-        for (const item in assortItemTable)
-        {
-            assortItemTable[item].upd.BuyRestrictionMax = 10
-            const itemID = assortItemTable[item]._id;
-            const oldRestriction = assortItemTable[item].upd.BuyRestrictionMax;
-            const newRestriction = Math.round(randomUtil.randInt(1, (oldRestriction)));
-            
-            assortItemTable[item].upd.BuyRestrictionMax = newRestriction;
-
-            if (CatBurglar.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Buy Restriction Changed to: [${newRestriction}]`, "cyan");}
-        }
-    }
-    private randomizeStockAvailable(assortItemTable)
-    {
-        const randomUtil: RandomUtil = container.resolve<RandomUtil>("RandomUtil");
-        for (const item in assortItemTable)
-        {
-            if (assortItemTable[item].upd?.UnlimitedCount !== undefined)
-            {
-                assortItemTable[item].upd.UnlimitedCount = false;
-                assortItemTable[item].upd.StackObjectsCount = 25;
-            }
-            const outOfStockRoll = randomUtil.getChance100(CatBurglar.config.outOfStockChance);
-            
-            if (outOfStockRoll)
-            {
-                const itemID = assortItemTable[item]._id;
-                assortItemTable[item].upd.StackObjectsCount = 0;
-
-                if (CatBurglar.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Marked out of stock`, "cyan");}
-            } 
-            else
-            {
-                const itemID = assortItemTable[item]._id;
-                const originalStock = assortItemTable[item].upd.StackObjectsCount;
-                const newStock = randomUtil.randInt(1, (originalStock));
-                assortItemTable[item].upd.StackObjectsCount = newStock;
-
-                if (CatBurglar.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Stock Count changed to: [${newStock}]`, "cyan");}
-            }
-        }
-    }
 }
 
 interface Config 
@@ -287,9 +232,7 @@ interface Config
     useBarters: boolean,
     useFleaPrices: boolean,
     itemPriceMultiplier: number,
-    randomizeStockAvailable: boolean,
     outOfStockChance: number,
-    randomizeBuyRestriction: boolean,
     traderRefreshMin: number,
     traderRefreshMax: number,
     addTraderToFlea: boolean,
