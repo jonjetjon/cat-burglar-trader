@@ -112,19 +112,6 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
                     {
                         const trader = databaseService.getTables().traders["CatBurglar"];
                         const assortItems = trader.assort.items;
-                        if (!realismDetected)
-                        {
-                            if (CatBurglar.config.randomizeBuyRestriction)
-                            {
-                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing CatBurglar Stock with Randomized Buy Restrictions.`);}
-                                this.randomizeBuyRestriction(assortItems);
-                            }
-                            if (CatBurglar.config.randomizeStockAvailable)
-                            {
-                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing CatBurglar Stock with Randomized Stock Availability.`);}
-                                this.randomizeStockAvailable(assortItems);
-                            }
-                        }
                         return output;
                     }
                 }
@@ -171,23 +158,16 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         //get a list of all key ids in the game
         const listOfKeys = this.getKeyIds();
 
-        // Iterate through newly created hideoutItems, set prices, and push to assort
-        const specialItems = 
-        [
-            "6389c7f115805221fb410466",
-            "6389c85357baa773a825b356"
-        ]
-        const priceReduction = 0.80;
+        //iterate through the list of keys and set the prices then add to the assort
+        const priceReduction = 0.90;
         for (const itemID of listOfKeys)
         {
+            //check the price table for the price of the item and then multiply that by the price reduction and the pricemultiplier in the config    
             let price = (priceTable[itemID] * priceReduction)  * CatBurglar.config.itemPriceMultiplier;
+            //if there is no price in the price table take the handbook price of the item, multiply it by our pricereduction variable, then multiply that by the pricemultiplier in the config
             if (!price)
             {
                 price = ((handbookTable.Items.find(x => x.Id === itemID)?.Price ?? 1) * priceReduction)  * CatBurglar.config.itemPriceMultiplier;
-            }
-            if (specialItems.some(e => e === itemID))
-            {
-                price *= 10;
             }
             this.fluentAssortCreator.createSingleAssortItem(itemID)
                 .addUnlimitedStackCount()
@@ -228,9 +208,12 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
                 continue;
             }
             //check if it is a key
-            if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.KEY))
+            if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.KEY_MECHANICAL))
             {
-                continue;
+                if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.KEYCARD))
+                {
+                    continue;
+                }
             }
             //make sure it isn't a quest key
             if(eachItem._props.QuestItem)
