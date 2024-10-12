@@ -229,10 +229,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
 
 interface Config 
 {
-    useBarters: boolean,
-    useFleaPrices: boolean,
     itemPriceMultiplier: number,
-    outOfStockChance: number,
     traderRefreshMin: number,
     traderRefreshMax: number,
     addTraderToFlea: boolean,
