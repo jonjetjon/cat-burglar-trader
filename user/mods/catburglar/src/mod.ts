@@ -14,9 +14,11 @@ import { ConfigServer } from "@spt/servers/ConfigServer";
 import { ConfigTypes } from "@spt/models/enums/ConfigTypes";
 import { ITraderConfig } from "@spt/models/spt/config/ITraderConfig";
 import { IRagfairConfig } from "@spt/models/spt/config/IRagfairConfig";
+import { ItemHelper } from "@spt/helpers/ItemHelper";
 import { DynamicRouterModService } from "@spt/services/mod/dynamicRouter/DynamicRouterModService";
 import { RandomUtil } from "@spt/utils/RandomUtil";
 import { JsonUtil } from "@spt/utils/JsonUtil";
+import { BaseClasses} from "@spt/models/enums/BaseClasses";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -166,33 +168,8 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
             this.setRealismDetection(realismCheck);
         }
 
-        // Get hideoutItems Needed for upgrades
-        const hideoutBlacklist = 
-        [
-            "5449016a4bdc2d6f028b456f",
-            "5696686a4bdc2da3298b456a",
-            "569668774bdc2da2298b4568",
-            "5df8a72c86f77412640e2e83",
-            "5df8a6a186f77412640e2e80",
-            "5df8a77486f77412672a1e3f"
-        ]
-        
-        const hideoutAreas = databaseService.getTables().hideout.areas;
-        const hideoutItems = [];
-        for (const item of hideoutAreas)
-        {
-            for (const stage in item.stages)
-            {
-                for (const requirements of item.stages[stage].requirements)
-                    if (requirements?.templateId)
-                    {
-                        if (!hideoutItems.some(e => e === requirements.templateId) && !hideoutBlacklist.some(e => e === requirements.templateId))
-                        {
-                            hideoutItems.push(requirements.templateId);
-                        }
-                    }
-            }
-        }
+        //get a list of all key ids in the game
+        const listOfKeys = this.getKeyIds();
 
         // Iterate through newly created hideoutItems, set prices, and push to assort
         const specialItems = 
@@ -201,8 +178,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
             "6389c85357baa773a825b356"
         ]
         const priceReduction = 0.80;
-
-        for (const itemID of hideoutItems)
+        for (const itemID of listOfKeys)
         {
             let price = (priceTable[itemID] * priceReduction)  * CatBurglar.config.itemPriceMultiplier;
             if (!price)
@@ -233,6 +209,40 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         const timeTaken = performance.now() - start;
         if (CatBurglar.config.debugLogging) {logger.log(`[${this.mod}] Assort generation took ${timeTaken.toFixed(3)}ms.`, "green");}
     }
+
+    private getKeyIds(): string[]
+    {
+        //load in the entire items database
+        const items = container.resolve<DatabaseService>("DatabaseService").getTables().templates.items;
+        //load in the itemhelper
+        const itemHelper = container.resolve<ItemHelper>("ItemHelper");
+        //create an empty object to store our list of key id's in
+        const listOfKeys = [];
+        //iterate through every item in the database
+        for(const itemID in items)
+        {
+            const eachItem = items[itemID]
+            //make sure it is an item
+            if(eachItem._type !== "Item")
+            {
+                continue;
+            }
+            //check if it is a key
+            if(!itemHelper.isOfBaseclass(eachItem._id, BaseClasses.KEY))
+            {
+                continue;
+            }
+            //make sure it isn't a quest key
+            if(eachItem._props.QuestItem)
+            {
+                continue;
+            }
+            //if it meets all of the above requirements add it to our list of items
+            listOfKeys.push(eachItem._id);
+        }
+        return listOfKeys;
+    }
+
     private setRealismDetection(i: boolean)
     {
         realismDetected = i;
