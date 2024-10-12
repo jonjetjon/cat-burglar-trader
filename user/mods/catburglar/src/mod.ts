@@ -150,7 +150,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         const listOfKeys = this.getKeyIds();
 
         //iterate through the list of keys and set the prices then add to the assort
-        const priceReduction = 0.90;
+        const priceReduction = 0.80;
         for (const itemID of listOfKeys)
         {
             //check the price table for the price of the item and then multiply that by the price reduction and the pricemultiplier in the config    
