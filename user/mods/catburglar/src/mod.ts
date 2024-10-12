@@ -102,24 +102,24 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         }
 
         dynamicRouterModService.registerDynamicRouter(
-            "HarryHideoutRefreshStock",
+            "CatBurglarRefreshStock",
             [
                 {
-                    url: "/client/items/prices/HarryHideout",
+                    url: "/client/items/prices/CatBurglar",
                     action: async (url, info, sessionId, output) => 
                     {
-                        const trader = databaseService.getTables().traders["HarryHideout"];
+                        const trader = databaseService.getTables().traders["CatBurglar"];
                         const assortItems = trader.assort.items;
                         if (!realismDetected)
                         {
                             if (CatBurglar.config.randomizeBuyRestriction)
                             {
-                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing HarryHideout Stock with Randomized Buy Restrictions.`);}
+                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing CatBurglar Stock with Randomized Buy Restrictions.`);}
                                 this.randomizeBuyRestriction(assortItems);
                             }
                             if (CatBurglar.config.randomizeStockAvailable)
                             {
-                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing HarryHideout Stock with Randomized Stock Availability.`);}
+                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing CatBurglar Stock with Randomized Stock Availability.`);}
                                 this.randomizeStockAvailable(assortItems);
                             }
                         }
@@ -176,6 +176,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
             "5df8a6a186f77412640e2e80",
             "5df8a77486f77412672a1e3f"
         ]
+        
         const hideoutAreas = databaseService.getTables().hideout.areas;
         const hideoutItems = [];
         for (const item of hideoutAreas)
@@ -225,7 +226,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
 
         // Add trader to locale file, ensures trader text shows properly on screen
         // WARNING: adds the same text to ALL locales (e.g. chinese/french/english)
-        this.traderHelper.addTraderToLocales(baseJson, tables, baseJson.name, "Hideout Harry", baseJson.nickname, baseJson.location, "I'm sellin', what are you buyin'?");
+        this.traderHelper.addTraderToLocales(baseJson, tables, baseJson.name, "Cat Burglar", baseJson.nickname, baseJson.location, "Meow Meow Meow(Tarkov) Meow Meow Meow(keys for sale)");
 
         this.logger.debug(`[${this.mod}] loaded... `);
 
