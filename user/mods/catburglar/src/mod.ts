@@ -1,3 +1,6 @@
+/**
+ * MUCH OF THIS CODE HAS BEEN BORROWED FROM OR IS A LIGHTLY MODIFIED VERSION OF THE MOD.TS FROM ACIDPHANTASM'S HARRYHIDEOUT MOD, I DO NOT CLAIM ANY CREDIT FOR THIS
+ */
 import { DependencyContainer, container } from "tsyringe";
 
 // SPT types
@@ -27,7 +30,7 @@ import { HashUtil } from "@spt/utils/HashUtil";
 
 let realismDetected:boolean;
 
-class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
+class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
 {
     private mod: string
     private logger: ILogger
@@ -60,12 +63,12 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
 
         //Load config file before accessing it
-        HideoutHarry.config = JSON.parse(fs.readFileSync(HideoutHarry.configPath, "utf-8"));
+        CatBurglar.config = JSON.parse(fs.readFileSync(CatBurglar.configPath, "utf-8"));
 
         // Set config values to local variables for validation & use
-        let minRefresh = HideoutHarry.config.traderRefreshMin;
-        let maxRefresh = HideoutHarry.config.traderRefreshMax;
-        const addToFlea = HideoutHarry.config.addTraderToFlea;
+        let minRefresh = CatBurglar.config.traderRefreshMin;
+        let maxRefresh = CatBurglar.config.traderRefreshMax;
+        const addToFlea = CatBurglar.config.addTraderToFlea;
         if (minRefresh >= maxRefresh)
         {
             minRefresh = 1800;
@@ -109,14 +112,14 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
                         const assortItems = trader.assort.items;
                         if (!realismDetected)
                         {
-                            if (HideoutHarry.config.randomizeBuyRestriction)
+                            if (CatBurglar.config.randomizeBuyRestriction)
                             {
-                                if (HideoutHarry.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing HarryHideout Stock with Randomized Buy Restrictions.`);}
+                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing HarryHideout Stock with Randomized Buy Restrictions.`);}
                                 this.randomizeBuyRestriction(assortItems);
                             }
-                            if (HideoutHarry.config.randomizeStockAvailable)
+                            if (CatBurglar.config.randomizeStockAvailable)
                             {
-                                if (HideoutHarry.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing HarryHideout Stock with Randomized Stock Availability.`);}
+                                if (CatBurglar.config.debugLogging) {this.logger.info(`[${this.mod}] Refreshing HarryHideout Stock with Randomized Stock Availability.`);}
                                 this.randomizeStockAvailable(assortItems);
                             }
                         }
@@ -135,7 +138,7 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
     public postDBLoad(container: DependencyContainer): void
     {
 
-        HideoutHarry.config = JSON.parse(fs.readFileSync(HideoutHarry.configPath, "utf-8"));
+        CatBurglar.config = JSON.parse(fs.readFileSync(CatBurglar.configPath, "utf-8"));
 
         // Resolve SPT classes we'll use
         const preSptModLoader: PreSptModLoader = container.resolve<PreSptModLoader>("PreSptModLoader");
@@ -154,7 +157,7 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
 
         //Detect Realism (to ignore randomized settings)
         const realismCheck = preSptModLoader.getImportedModsNames().includes("SPT-Realism");
-        if (HideoutHarry.config.randomizeBuyRestriction || HideoutHarry.config.randomizeStockAvailable)
+        if (CatBurglar.config.randomizeBuyRestriction || CatBurglar.config.randomizeStockAvailable)
         {
             this.setRealismDetection(realismCheck);
         }
@@ -200,10 +203,10 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
 
         for (const itemID of hideoutItems)
         {
-            let price = (priceTable[itemID] * priceReduction)  * HideoutHarry.config.itemPriceMultiplier;
+            let price = (priceTable[itemID] * priceReduction)  * CatBurglar.config.itemPriceMultiplier;
             if (!price)
             {
-                price = ((handbookTable.Items.find(x => x.Id === itemID)?.Price ?? 1) * priceReduction)  * HideoutHarry.config.itemPriceMultiplier;
+                price = ((handbookTable.Items.find(x => x.Id === itemID)?.Price ?? 1) * priceReduction)  * CatBurglar.config.itemPriceMultiplier;
             }
             if (specialItems.some(e => e === itemID))
             {
@@ -214,7 +217,7 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
                 .addMoneyCost(Money.ROUBLES, Math.round(price))
                 .addLoyaltyLevel(1)
                 .export(tables.traders[baseJson._id])
-            if (HideoutHarry.config.debugLogging){
+            if (CatBurglar.config.debugLogging){
                 logger.log("ItemID: " + itemID + " for price: " + Math.round(price), "cyan");
             }
         }
@@ -227,7 +230,7 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
         this.logger.debug(`[${this.mod}] loaded... `);
 
         const timeTaken = performance.now() - start;
-        if (HideoutHarry.config.debugLogging) {logger.log(`[${this.mod}] Assort generation took ${timeTaken.toFixed(3)}ms.`, "green");}
+        if (CatBurglar.config.debugLogging) {logger.log(`[${this.mod}] Assort generation took ${timeTaken.toFixed(3)}ms.`, "green");}
     }
     private setRealismDetection(i: boolean)
     {
@@ -250,7 +253,7 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
             
             assortItemTable[item].upd.BuyRestrictionMax = newRestriction;
 
-            if (HideoutHarry.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Buy Restriction Changed to: [${newRestriction}]`, "cyan");}
+            if (CatBurglar.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Buy Restriction Changed to: [${newRestriction}]`, "cyan");}
         }
     }
     private randomizeStockAvailable(assortItemTable)
@@ -263,14 +266,14 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
                 assortItemTable[item].upd.UnlimitedCount = false;
                 assortItemTable[item].upd.StackObjectsCount = 25;
             }
-            const outOfStockRoll = randomUtil.getChance100(HideoutHarry.config.outOfStockChance);
+            const outOfStockRoll = randomUtil.getChance100(CatBurglar.config.outOfStockChance);
             
             if (outOfStockRoll)
             {
                 const itemID = assortItemTable[item]._id;
                 assortItemTable[item].upd.StackObjectsCount = 0;
 
-                if (HideoutHarry.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Marked out of stock`, "cyan");}
+                if (CatBurglar.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Marked out of stock`, "cyan");}
             } 
             else
             {
@@ -279,7 +282,7 @@ class HideoutHarry implements IPreSptLoadMod, IPostDBLoadMod
                 const newStock = randomUtil.randInt(1, (originalStock));
                 assortItemTable[item].upd.StackObjectsCount = newStock;
 
-                if (HideoutHarry.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Stock Count changed to: [${newStock}]`, "cyan");}
+                if (CatBurglar.config.debugLogging) {this.logger.log(`[${this.mod}] Item: [${itemID}] Stock Count changed to: [${newStock}]`, "cyan");}
             }
         }
     }
@@ -299,4 +302,4 @@ interface Config
     debugLogging: boolean,
 }
 
-module.exports = { mod: new HideoutHarry() }
+module.exports = { mod: new CatBurglar() }

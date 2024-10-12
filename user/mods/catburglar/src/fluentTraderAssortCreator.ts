@@ -1,3 +1,7 @@
+/**
+ * MOST OF THIS CODE IS TAKEN FROM OR IS A LIGHTLY MODIFIED VERSION OF THE FLUENTTRADERASSORTCREATOR.TS FROM ACIDPHANTASM'S HARRYHIDEOUT MOD, I DO NOT CLAIM ANY CREDIT FOR THIS
+ */
+
 import { Item } from "@spt/models/eft/common/tables/IItem";
 import { IBarterScheme, ITrader } from "@spt/models/eft/common/tables/ITrader";
 import { Money } from "@spt/models/enums/Money";
@@ -33,7 +37,8 @@ export class FluentAssortConstructor
             slotId: "hideout", // Should always be "hideout"
             upd: {
                 UnlimitedCount: false,
-                StackObjectsCount: 100
+                //changing stackobjectscount to 1 since we are always selling keys
+                StackObjectsCount: 1
             }
         };
 
