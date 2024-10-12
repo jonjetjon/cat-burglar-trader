@@ -85,7 +85,7 @@ class CatBurglar implements IPreSptLoadMod, IPostDBLoadMod
         // Create helper class and use it to register our traders image/icon + set its stock refresh time
         this.traderHelper = new TraderHelper();
         this.fluentAssortCreator = new FluentAssortCreator(hashUtil, this.logger);
-        this.traderHelper.registerProfileImage(baseJson, this.mod, preSptModLoader, imageRouter, "harry.jpg");
+        this.traderHelper.registerProfileImage(baseJson, this.mod, preSptModLoader, imageRouter, "catburglar.jpg");
         this.traderHelper.setTraderUpdateTime(traderConfig, baseJson, minRefresh, maxRefresh);
 
         // Add trader to trader enum
