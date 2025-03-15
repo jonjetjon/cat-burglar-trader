@@ -1,9 +1,9 @@
 {
     "name": "CatBurglar",
-    "version": "1.0.2",
+    "version": "1.2.0",
     "main": "src/mod.js",
     "license": "MIT",
-    "author": "LeftHandCat",
+    "author": "LeftHandedCat",
     "sptVersion": "~3.11",
     "loadBefore": [],
     "loadAfter": [],
